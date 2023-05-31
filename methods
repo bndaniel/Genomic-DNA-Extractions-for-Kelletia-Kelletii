@@ -1,0 +1,73 @@
+
+### read basecalling and corrections
+# basecalling Nanopore MinION reads
+# Guppy V
+tar -xf ont-guppy-cpu_6.2.1_linux64.tar
+
+# running basecalling on first MinION sequencing run
+./ont-guppy-cpu/bin/guppy_basecaller --input_path ./ligationseq_08062022 --save_path ./basecalling_ligationseq --cpu_threads_per_caller 60 --config dna_r9.4.1_450bps_hac.cfg
+
+# running basecalling on second MinION sequencing run
+./ont-guppy-cpu/bin/guppy_basecaller --input_path ./ligationseq2_08242022 --save_path ./basecalling_ligationseq2 --cpu_threads_per_caller 60 --num_callers 3 --config dna_r9.4.1_450bps_hac.cfg
+____________________________________________________________________________________________________________________________________________________________
+### fastqc on each read type
+
+# novaseq raw and corrected
+fastqc ./novaseq_reads/02_S1_L001_R1_001.fastq.gz -o ./FASTQC/ -t 30
+fastqc ./novaseq_reads/02_S1_L001_R2_001.fastq.gz -o ./FASTQC/ -t 30
+
+#nanopore raw and corrected
+fastqc ./nanopore_reads/basecalling_ligationseq/pass/fastp_combined.fastq -o ./FASTQC/ -t 30
+fastqc ./nanopore_reads/basecalling_ligationseq/pass/fastp_combined2.fastq -o ./FASTQC/ -t 30
+
+____________________________________________________________________________________________________________________________________________________________
+
+### R code for extraction analysis 
+
+#QC comparison extraction metadata
+
+
+install.packages("tidyverse")
+install.packages("hrbrthemes")
+install.packages("viridis")
+install.packages("ggsignif")
+install.packages('ggpubr')
+
+library(ggplot2)
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(ggsignif)
+library(ggpubr)
+
+setwd("~/Desktop")
+QC <-read.csv("QC.csv", header = TRUE)
+
+summary(QC)
+head(QC)
+
+
+#boxplot comparing sample QC with conc
+#basic boxplot
+boxplot(QC$Concentration~QC$Quality)
+
+
+#boxplot with jitter
+#link to site for jitter = https://r-graph-gallery.com/89-box-and-scatter-plot-with-ggplot2.html
+#link to site for significance astrik = https://stackoverflow.com/questions/17084566/put-stars-on-ggplot-barplots-and-boxplots-to-indicate-the-level-of-significanc
+
+#order groups
+QC$Quality <- factor(QC$Quality , levels=c("Digested", "HMW + Degradation", "HMW"))
+
+#significance comparison (Kruskal wallis = better comparison of significance becasue it considers distribution of each group as well not just mean)
+my_comparisons = list( c("HMW", "HMW + Degradation"), c("HMW", "Digested"), c("HMW + Degradation", "Digested") )
+
+#boxplot
+ggplot(QC, aes(x=Quality, y=Concentration, fill=Quality)) +
+  geom_boxplot() +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme_ipsum() +
+  theme(legend.position="none", axis.title.x = element_text(size=15, hjust=.5, face="bold"), axis.title.y = element_text(size=15, hjust=.5, face="bold")) + ylab("Concentration (ng/μL)") + xlab("Quality") +
+  stat_compare_means(comparisons = my_comparisons, label = "p.signif")
+

@@ -22,7 +22,7 @@ fastqc ./nanopore_reads/basecalling_ligationseq/pass/fastp_combined2.fastq -o ./
 
 ____________________________________________________________________________________________________________________________________________________________
 
-Methods for RAD-seq SNP ID, etc.
+Methods for RAD-seq quality filtering and SNP identification
 https://catchenlab.life.illinois.edu/stacks/manual/
 
 ____________________________________________________________________________________________________________________________________________________________

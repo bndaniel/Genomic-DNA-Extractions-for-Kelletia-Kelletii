@@ -1,7 +1,7 @@
 # Genomic-DNA-Extractions-for-Kelletia-Kelletii
 
 
-Ben N. Daniels
+Benjamin N. Daniels
 
 California Polytechnic State University
 <br>

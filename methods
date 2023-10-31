@@ -1,7 +1,7 @@
 
 ### read basecalling and corrections
 # basecalling Nanopore MinION reads
-# Guppy V
+# Guppy v6.2.1
 tar -xf ont-guppy-cpu_6.2.1_linux64.tar
 
 # running basecalling on first MinION sequencing run
